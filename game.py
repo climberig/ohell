@@ -1,12 +1,12 @@
-LIM = 13
-WIDTH = 10
+CARD_LIM = 13
 players = ['igor', 'katie', 'jamie', 'emery']
+WIDTH = 10 * len(players) + 5
 game = []
 
 
 def dl(times=1):
     for _ in range(times):
-        print('\033[A                                                                 \033[A')
+        print('\033[A' + ' ' * WIDTH + '\033[A')
 
 
 def points(bets, tricks, first_player):
@@ -47,7 +47,7 @@ def arrange_players(players, start_player):
 
 
 while cards != 0:
-    print('-' * (len(players) * WIDTH + 5))
+    print('-' * WIDTH)
     show(cards, arrange_players(players, start_player))
     bets_str = input('Bets:')
     bets = [int(b) for b in bets_str.split(' ')]
@@ -67,7 +67,7 @@ while cards != 0:
     show(cards, totals)
     cards += increment
     start_player = (start_player + 1) % len(players)
-    if cards == LIM:
+    if cards == CARD_LIM:
         increment = -1
 
 
