@@ -1,7 +1,6 @@
 COL_LEN, LEFT_LEN = 10, 3
 CARD_LIM = 13
-players = ['igor', 'katie', 'jamie', 'emery']
-SCREEN_LEN = COL_LEN * len(players) + LEFT_LEN
+players = []
 game = []
 
 
@@ -10,7 +9,7 @@ def dl(times=1):
         print('\033[A' + ' ' * SCREEN_LEN + '\033[A')
 
 
-def points(bets, tricks, first_player):
+def points(bets, tricks):
     pp = []
     for i in range(len(bets)):
         bet, trick = bets[i], tricks[i]
@@ -20,7 +19,7 @@ def points(bets, tricks, first_player):
         else:
             p = -diff * 2
         pp.append(p)
-    return arrange(pp, (len(bets) - first_player) % len(players))
+    return pp
 
 
 def print_line(item, items):
@@ -35,38 +34,91 @@ def calc_total(game):
     return totals
 
 
-def arrange(players, n):
+def arrange(items, n, reverse=False):
+    if reverse:
+        n = (len(items) - n) % len(items)
     arranged = []
-    while len(arranged) != len(players):
-        arranged.append(players[n])
-        n = (n + 1) % len(players)
+    while len(arranged) != len(items):
+        arranged.append(items[n])
+        n = (n + 1) % len(items)
     return arranged
 
 
-cards, increment, player = 1, 1, 0
-print_line('', players)
+def save(s):
+    with open('game', 'w+') as f:
+        f.write(s + '\n')
+
+
+def save_game(cards, bids, tricks):
+    with open('game', 'a') as f:
+        f.write(str(cards) + '\n')
+        f.write(','.join(str(b) for b in bids) + '\n')
+        f.write(','.join(str(t) for t in tricks) + '\n')
+
+
+def next_card(cards):
+    increment = 1
+    if cards == CARD_LIM:
+        increment = -1
+    cards += increment
+    return cards
+
+
+def int_list(s, sep=' '):
+    return [int(i.rstrip()) for i in s.rstrip().split(sep)]
+
+
+cards, player = 1, 0
+answer = input('Initialize a game from file?(y/n)')
+if answer == 'y':
+    with open('game', 'r') as f:
+        line = f.readline().rstrip()
+        players = line.split(',')
+        print_line('', players)
+        line = f.readline()
+        while line:
+            cards = int(line.rstrip())
+            bets = int_list(f.readline(), sep=',')
+            tricks = int_list(f.readline(), sep=',')
+            game.append(points(bets, tricks))
+            totals = calc_total(game)
+            print_line(cards, totals)
+            line = f.readline()
+            player = (player + 1) % len(players)
+else:
+    players = input('Enter players:').rstrip().split(',')
+
+if not game:
+    print_line('', players)
+    save(','.join(players))
+else:
+    cards = next_card(cards)
+SCREEN_LEN = COL_LEN * len(players) + LEFT_LEN
+
 while cards != 0:
     print('-' * SCREEN_LEN)
     print_line(cards, arrange(players, player))
-    bids_str = input('Bids:')
-    bids = [int(b) for b in bids_str.split(' ')]
+    bids_str = input('Bids:').rstrip()
+    bids = int_list(bids_str)
     diff = cards - sum(bids)
-    dl(1)
-    if diff >= 0:
-        print('Can not bid {}'.format(str(diff)))
-    else:
-        print('Can bid everything')
-    if len(bids) != len(players):
+    if len(bids) < len(players):
+        dl(1)
+        if diff >= 0:
+            print('Can not bid {}'.format(str(diff)))
+        else:
+            print('Can bid everything')
         bids.append(int(input('  Bids:{} '.format(bids_str))))
-    tricks = [int(t) for t in input('Tricks:').split(' ')]
+    else:
+        print('')
+    tricks = int_list(input('Tricks:'))
     dl(5)
-    pp = points(bids, tricks, player)
+    bids, tricks = arrange(bids, player, True), arrange(tricks, player, True)
+    save_game(cards, bids, tricks)
+    pp = points(bids, tricks)
     game.append(pp)
     totals = calc_total(game)
     print_line(cards, totals)
-    cards += increment
     player = (player + 1) % len(players)
-    if cards == CARD_LIM:
-        increment = -1
+    cards = next_card(cards)
 
 
