@@ -4,3 +4,4 @@ out
 */*.iml
 *.out
 *.iml
+atlassian-ide-plugin.xml
