@@ -1,12 +1,13 @@
+COL_LEN, LEFT_LEN = 10, 3
 CARD_LIM = 13
 players = ['igor', 'katie', 'jamie', 'emery']
-WIDTH = 10 * len(players) + 5
+SCREEN_LEN = COL_LEN * len(players) + LEFT_LEN
 game = []
 
 
 def dl(times=1):
     for _ in range(times):
-        print('\033[A' + ' ' * WIDTH + '\033[A')
+        print('\033[A' + ' ' * SCREEN_LEN + '\033[A')
 
 
 def points(bets, tricks, first_player):
@@ -19,15 +20,11 @@ def points(bets, tricks, first_player):
         else:
             p = -diff * 2
         pp.append(p)
-    return arrange_players(pp, (len(bets) - first_player) % len(players))
+    return arrange(pp, (len(bets) - first_player) % len(players))
 
 
-def show(first, items):
-    print(str(first).rjust(3) + ''.join(str(i).rjust(10) for i in items))
-
-
-cards, increment, start_player = 1, 1, 0
-show('', players)
+def print_line(item, items):
+    print(str(item).rjust(LEFT_LEN) + ''.join(str(i).rjust(COL_LEN) for i in items))
 
 
 def calc_total(game):
@@ -38,35 +35,37 @@ def calc_total(game):
     return totals
 
 
-def arrange_players(players, start_player):
+def arrange(players, n):
     arranged = []
     while len(arranged) != len(players):
-        arranged.append(players[start_player])
-        start_player = (start_player + 1) % len(players)
+        arranged.append(players[n])
+        n = (n + 1) % len(players)
     return arranged
 
 
+cards, increment, player = 1, 1, 0
+print_line('', players)
 while cards != 0:
-    print('-' * WIDTH)
-    show(cards, arrange_players(players, start_player))
-    bets_str = input('Bets:')
-    bets = [int(b) for b in bets_str.split(' ')]
-    diff = cards - sum(bets)
+    print('-' * SCREEN_LEN)
+    print_line(cards, arrange(players, player))
+    bids_str = input('Bids:')
+    bids = [int(b) for b in bids_str.split(' ')]
+    diff = cards - sum(bids)
     dl(1)
     if diff >= 0:
-        print('Can not bet ' + str(diff))
+        print('Can not bid {}'.format(str(diff)))
     else:
-        print('Can bet everything')
-    if len(bets) != len(players):
-        bets.append(int(input('Bets:' + bets_str + ' ')))
+        print('Can bid everything')
+    if len(bids) != len(players):
+        bids.append(int(input('  Bids:{} '.format(bids_str))))
     tricks = [int(t) for t in input('Tricks:').split(' ')]
     dl(5)
-    pp = points(bets, tricks, start_player)
+    pp = points(bids, tricks, player)
     game.append(pp)
     totals = calc_total(game)
-    show(cards, totals)
+    print_line(cards, totals)
     cards += increment
-    start_player = (start_player + 1) % len(players)
+    player = (player + 1) % len(players)
     if cards == CARD_LIM:
         increment = -1
 
