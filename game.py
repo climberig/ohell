@@ -11,13 +11,13 @@ def dl(times=1):
         print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
 
 
-def points(bets, tricks):
-    pp = []
+def calc_points(bets, tricks):
+    points = []
     for i in range(len(bets)):
         bet, trick = bets[i], tricks[i]
         diff = abs(bet - trick)
-        pp.append(10 + trick * 2 if diff == 0 else -diff * 2)
-    return pp
+        points.append(10 + trick * 2 if diff == 0 else -diff * 2)
+    return points
 
 
 def print_line(item, items):
@@ -79,7 +79,7 @@ if answer == 'y':
             cards = int(line.rstrip())
             bets = int_list(f.readline(), sep=',')
             tricks = int_list(f.readline(), sep=',')
-            game.append(points(bets, tricks))
+            game.append(calc_points(bets, tricks))
             totals = calc_total(game)
             print_line(cards, totals)
             line = f.readline()
@@ -113,8 +113,8 @@ while cards != 0:
     dl(5)
     bids, tricks = shift(bids, player, True), shift(tricks, player, True)
     save_game(cards, bids, tricks)
-    pp = points(bids, tricks)
-    game.append(pp)
+    points = calc_points(bids, tricks)
+    game.append(points)
     totals = calc_total(game)
     print_line(cards, totals)
     player = (player + 1) % len(players)
