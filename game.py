@@ -2,8 +2,6 @@ COL_LEN, LEFT_LEN = 10, 3
 CURSOR_UP_ONE = '\x1b[1A'
 ERASE_LINE = '\x1b[2K'
 CARD_LIM = int(input('Card limit:'))
-players = []
-game = []
 
 
 def dl(times=1):
@@ -66,10 +64,8 @@ def dinput(prompt, default):
     return input("{} (default: {}):".format(prompt, default)) or default
 
 
-cards, player = 1, 0
-answer = input('Initialize a game from file?(y/n)')
-if answer == 'y':
-    filename = dinput('File name:', 'game')
+def init_from_file(filename):
+    player, game, cards = 0, [], 0
     with open(filename, 'r') as f:
         line = f.readline().rstrip()
         players = line.split(',')
@@ -84,7 +80,13 @@ if answer == 'y':
             print_line(cards, totals)
             line = f.readline()
             player = (player + 1) % len(players)
+    return game, players, player, cards
+
+
+if input('Initialize a game from file?(y/n)') == 'y':
+    game, players, player, cards = init_from_file(dinput('File name:', 'game'))
 else:
+    cards, game = 1, []
     players = input('Enter players:').rstrip().split(',')
     player = (players.index(input('Dealer:')) + 1) % len(players)
 
@@ -113,10 +115,8 @@ while cards != 0:
     dl(5)
     bids, tricks = shift(bids, player, True), shift(tricks, player, True)
     save_game(cards, bids, tricks)
-    points = calc_points(bids, tricks)
-    game.append(points)
-    totals = calc_total(game)
-    print_line(cards, totals)
+    game.append(calc_points(bids, tricks))
+    print_line(cards, calc_total(game))
     player = (player + 1) % len(players)
     cards = next_card(game, cards)
 
