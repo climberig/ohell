@@ -1,4 +1,6 @@
 COL_LEN, LEFT_LEN = 10, 3
+CURSOR_UP_ONE = '\x1b[1A'
+ERASE_LINE = '\x1b[2K'
 CARD_LIM = int(input('Card limit:'))
 players = []
 game = []
@@ -6,7 +8,7 @@ game = []
 
 def dl(times=1):
     for _ in range(times):
-        print('\033[A' + ' ' * SCREEN_LEN + '\033[A')
+        print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
 
 
 def points(bets, tricks):
@@ -14,11 +16,7 @@ def points(bets, tricks):
     for i in range(len(bets)):
         bet, trick = bets[i], tricks[i]
         diff = abs(bet - trick)
-        if diff == 0:
-            p = 10 + trick * 2
-        else:
-            p = -diff * 2
-        pp.append(p)
+        pp.append(10 + trick * 2 if diff == 0 else -diff * 2)
     return pp
 
 
@@ -64,10 +62,15 @@ def int_list(s, sep=' '):
     return [int(i.rstrip()) for i in s.rstrip().split(sep)]
 
 
+def dinput(prompt, default):
+    return input("{} (default: {}):".format(prompt, default)) or default
+
+
 cards, player = 1, 0
 answer = input('Initialize a game from file?(y/n)')
 if answer == 'y':
-    with open('game', 'r') as f:
+    filename = dinput('File name:', 'game')
+    with open(filename, 'r') as f:
         line = f.readline().rstrip()
         players = line.split(',')
         print_line('', players)
@@ -83,6 +86,7 @@ if answer == 'y':
             player = (player + 1) % len(players)
 else:
     players = input('Enter players:').rstrip().split(',')
+    player = (players.index(input('Dealer:')) + 1) % len(players)
 
 if not game:
     print_line('', players)
