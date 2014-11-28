@@ -94,7 +94,6 @@ if not game:
 else:
     cards = next_card(game, cards)
 SCREEN_LEN = COL_LEN * len(players) + LEFT_LEN
-
 while cards != 0:
     print('-' * SCREEN_LEN)
     print_line(cards, shift(players, player))
