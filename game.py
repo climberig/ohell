@@ -32,8 +32,8 @@ def calc_total(game):
     return totals
 
 
-def rearrange(items, n, reverse=False):
-    if reverse:
+def shift(items, n, left=False):
+    if left:
         n = (len(items) - n) % len(items)
     arranged = []
     while len(arranged) != len(items):
@@ -97,7 +97,7 @@ SCREEN_LEN = COL_LEN * len(players) + LEFT_LEN
 
 while cards != 0:
     print('-' * SCREEN_LEN)
-    print_line(cards, rearrange(players, player))
+    print_line(cards, shift(players, player))
     bids_str = input('Bids:').rstrip()
     bids = int_list(bids_str)
     diff = cards - sum(bids)
@@ -112,7 +112,7 @@ while cards != 0:
         print('')
     tricks = int_list(input('Tricks:'))
     dl(5)
-    bids, tricks = rearrange(bids, player, True), rearrange(tricks, player, True)
+    bids, tricks = shift(bids, player, True), shift(tricks, player, True)
     save_game(cards, bids, tricks)
     pp = points(bids, tricks)
     game.append(pp)
