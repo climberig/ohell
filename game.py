@@ -1,5 +1,5 @@
 COL_LEN, LEFT_LEN = 10, 3
-CARD_LIM = 13
+CARD_LIM = int(input('Card limit:'))
 players = []
 game = []
 
@@ -34,7 +34,7 @@ def calc_total(game):
     return totals
 
 
-def arrange(items, n, reverse=False):
+def rearrange(items, n, reverse=False):
     if reverse:
         n = (len(items) - n) % len(items)
     arranged = []
@@ -56,12 +56,8 @@ def save_game(cards, bids, tricks):
         f.write(','.join(str(t) for t in tricks) + '\n')
 
 
-def next_card(cards):
-    increment = 1
-    if cards == CARD_LIM:
-        increment = -1
-    cards += increment
-    return cards
+def next_card(game, cards):
+    return cards + (1 if len(game) < CARD_LIM else -1)
 
 
 def int_list(s, sep=' '):
@@ -92,12 +88,12 @@ if not game:
     print_line('', players)
     save(','.join(players))
 else:
-    cards = next_card(cards)
+    cards = next_card(game, cards)
 SCREEN_LEN = COL_LEN * len(players) + LEFT_LEN
 
 while cards != 0:
     print('-' * SCREEN_LEN)
-    print_line(cards, arrange(players, player))
+    print_line(cards, rearrange(players, player))
     bids_str = input('Bids:').rstrip()
     bids = int_list(bids_str)
     diff = cards - sum(bids)
@@ -112,13 +108,13 @@ while cards != 0:
         print('')
     tricks = int_list(input('Tricks:'))
     dl(5)
-    bids, tricks = arrange(bids, player, True), arrange(tricks, player, True)
+    bids, tricks = rearrange(bids, player, True), rearrange(tricks, player, True)
     save_game(cards, bids, tricks)
     pp = points(bids, tricks)
     game.append(pp)
     totals = calc_total(game)
     print_line(cards, totals)
     player = (player + 1) % len(players)
-    cards = next_card(cards)
+    cards = next_card(game, cards)
 
 
