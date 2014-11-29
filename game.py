@@ -63,6 +63,7 @@ def int_list(s, sep=' '):
 def dinput(prompt, default):
     return input("{} (default: {}):".format(prompt, default)) or default
 
+
 def print_winners(players, game):
     totals = calc_total(game)
     max_total, winners = max(totals), []
