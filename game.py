@@ -63,6 +63,14 @@ def int_list(s, sep=' '):
 def dinput(prompt, default):
     return input("{} (default: {}):".format(prompt, default)) or default
 
+def print_winners(players, game):
+    totals = calc_total(game)
+    max_total, winners = max(totals), []
+    for i in range(len(totals)):
+        if totals[i] == max_total:
+            winners.append(players[i])
+    print(','.join(winners) + ' won! Congrats!')
+
 
 def init_from_file(filename):
     player, game, cards = 0, [], 0
@@ -76,8 +84,7 @@ def init_from_file(filename):
             bets = int_list(f.readline(), sep=',')
             tricks = int_list(f.readline(), sep=',')
             game.append(calc_points(bets, tricks))
-            totals = calc_total(game)
-            print_line(cards, totals)
+            print_line(cards, calc_total(game))
             line = f.readline()
             player = (player + 1) % len(players)
     return game, players, player, cards
@@ -85,16 +92,14 @@ def init_from_file(filename):
 
 if input('Initialize a game from file?(y/n)') == 'y':
     game, players, player, cards = init_from_file(dinput('File name:', 'game'))
+    cards = next_card(game, cards)
 else:
     cards, game = 1, []
     players = input('Enter players:').rstrip().split(',')
     player = (players.index(input('Dealer:')) + 1) % len(players)
-
-if not game:
     print_line('', players)
     save(','.join(players))
-else:
-    cards = next_card(game, cards)
+
 SCREEN_LEN = COL_LEN * len(players) + LEFT_LEN
 while cards != 0:
     print('-' * SCREEN_LEN)
@@ -119,5 +124,6 @@ while cards != 0:
     print_line(cards, calc_total(game))
     player = (player + 1) % len(players)
     cards = next_card(game, cards)
+print_winners(players, game)
 
 
