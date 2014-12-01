@@ -87,8 +87,8 @@ def init_from_file(filename):
             game.append(calc_points(bets, tricks))
             print_line(cards, calc_total(game))
             line = f.readline()
-            if line:
-                player = (player + 1) % len(players)
+            if not line:
+                player = (player - 1) % len(players)
     return game, players, player, cards
 
 
