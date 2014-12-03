@@ -5,6 +5,10 @@ CARD_LIM = int(input('Card limit:'))
 
 
 def dl(times=1):
+    """
+    Deletes lines from the screen starting from the previous line
+    times - number of lines to be deleted
+    """
     for _ in range(times):
         print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
 
@@ -31,6 +35,7 @@ def calc_total(game):
 
 
 def shift(items, n, left=False):
+    """ Shifts items n positions to the left or to the right, e.g. shift([1, 2, 3], 1) -> [3, 1, 2] """
     if left:
         n = (len(items) - n) % len(items)
     arranged = []
@@ -46,6 +51,7 @@ def save(s):
 
 
 def save_game(cards, bids, tricks):
+    """Saves game state into the file 'game' """
     with open('game', 'a') as f:
         f.write(str(cards) + '\n')
         f.write(','.join(str(b) for b in bids) + '\n')
@@ -61,7 +67,7 @@ def int_list(s, sep=' '):
 
 
 def dinput(prompt, default):
-    return input("{} (default: {}):".format(prompt, default)) or default
+    return input('{} (default: {}):'.format(prompt, default)) or default
 
 
 def print_winners(players, game):
@@ -70,7 +76,7 @@ def print_winners(players, game):
     for i in range(len(totals)):
         if totals[i] == max_total:
             winners.append(players[i])
-    print(','.join(winners) + ' won! Congrats!')
+    print('{} won! Congrats!'.format(','.join(winners)))
 
 
 def init_from_file(filename):
