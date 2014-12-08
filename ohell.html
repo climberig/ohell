@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ohell!</title>
+    <script src="jquery-1.11.1.js"></script>
+</head>
+<body>
+<script>
+    $(document).ready(function () {
+        var players = ['igor', 'katie', 'emery'];
+        $('#game').append(tr(rows(players)));
+
+
+        function rows(values){
+            var rows = "";
+            for(var i = 0; i < values.length; i++){
+                rows+=td(values[i])
+            }
+            return rows;
+        }
+
+        function th(v){
+           return t(v, 'th')
+        }
+
+        function tr(v){
+            return t(v, 'tr')
+        }
+
+        function td(v){
+            return t(v, 'td')
+        }
+
+        function t(v, e){
+            return "<" + e + ">" + v + "</" + e + '>'
+        }
+    });
+</script>
+<table id="game">
+</table>
+</body>
+</html>
