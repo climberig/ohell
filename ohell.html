@@ -4,6 +4,37 @@
     <title>Ohell!</title>
     <script src="jquery-1.11.1.js"></script>
     <style>
+
+        #editor {
+            display: none;
+        }
+
+        #board {
+            display: none;
+        }
+
+        #main tr {
+            vertical-align: top;
+        }
+
+        #recalculate {
+            float: right;
+        }
+
+        #game {
+            float: left;
+        }
+
+        #gameEditor {
+            width: 500px;
+        }
+
+        #gameEditor input {
+            width: 40px;
+            margin-left: 5px;
+            text-align: right;
+        }
+
         #game input, td {
             width: 40px;
             margin-left: 5px;
@@ -25,7 +56,8 @@
 <body>
 <script>
     $(document).ready(function () {
-        var cardLim, players, len, dealer, score = [], roundCount = 0, card = 1, dealerStr;
+        var cardLim, players, len, dealer, score = [], roundCount = 0, card = 1, dealerStr, initialDealer;
+        var allBidInputs = [], allTricksInputs = [], allCards = [];
 
         $('#start').click(function () {
             players = $('#players').val().split(",");
@@ -41,15 +73,38 @@
             startGame();
         });
 
+        $('#toggleEditor').click(function () {
+            $('#editor').toggle();
+        });
+
+        $('#recalculate').click(function () {
+            $('#game').find('tr').remove();
+            roundCount = 0;
+            dealer = initialDealer;
+            addGameRow(players, ' ');
+            for (var i = 0; i < len; i++)
+                score[i] = 0;
+            for (var i = 0; i < allBidInputs.length; i++) {
+                updateScores(values(allBidInputs[i]), values(allTricksInputs[i]));
+                addGameRow(score, allCards[i]);
+                roundCount++;
+                dealer = increment(dealer);
+            }
+            newRound();
+        });
+
         function startGame() {
             $('#init').remove();
+            $('#board').toggle();
             len = players.length;
             for (var i = 0; i < len; i++) {
                 if (dealerStr === players[i])
                     dealer = i;
                 score[i] = 0;
             }
-            addRow(players, ' ');
+            initialDealer = dealer;
+            addGameRow(players, ' ');
+            editGamePlayersRow();
             newRound();
         }
 
@@ -57,9 +112,9 @@
             roundCount++;
             if (card == 0)
                 return;
-            var playersRow = addRow(arrangePlayers(dealer), card);
+            var playersRow = addGameRow(arrangePlayers(dealer), card);
             var betsInputs = createInputs(len);
-            var betsRow = addRow(betsInputs, ' ');
+            var betsRow = addGameRow(betsInputs, ' ');
             $(betsInputs[0]).focus();
             for (var i = 0; i < len; i++)
                 (function (i) {
@@ -77,11 +132,8 @@
                                     showMessage(message);
                                 }
                             } else if (i == len - 1) {
-                                betsRow.remove();
-                                var betsValues = values(betsInputs);
-                                var betsValuesRow = addRow(betsValues, ' ');
                                 var tricksInputs = createInputs(len);
-                                var tricksRow = addRow(tricksInputs, ' ');
+                                var tricksRow = addGameRow(tricksInputs, ' ');
                                 showMessage('');
                                 $(tricksInputs[0]).focus();
                                 for (var k = 0; k < len; k++)
@@ -91,11 +143,14 @@
                                                 if (k < len - 1)
                                                     $(tricksInputs[k + 1]).focus();
                                                 else if (k == len - 1) {
-                                                    betsValuesRow.remove();
+                                                    betsRow.remove();
                                                     tricksRow.remove();
                                                     playersRow.remove();
-                                                    updateScores(betsValues, values(tricksInputs));
-                                                    addRow(score, card);
+                                                    var bids = shift(values(betsInputs), dealer), tricks = shift(values(tricksInputs), dealer);
+                                                    updateScores(bids, tricks);
+                                                    addGameRow(score, card);
+                                                    addEditTable(bids, tricks, card);
+                                                    allCards.push(card);
                                                     nextCard();
                                                     dealer = increment(dealer);
                                                     newRound();
@@ -105,6 +160,13 @@
                             }
                     });
                 })(i);
+        }
+
+        function addEditTable(bids, tricks, card) {
+            var bidInputs = createEditInputs(bids), trickInputs = createEditInputs(tricks);
+            addEditRow(bidInputs, trickInputs, card);
+            allBidInputs.push(bidInputs);
+            allTricksInputs.push(trickInputs);
         }
 
         function arrangePlayers(dealer) {
@@ -124,16 +186,28 @@
             return (i + 1) % len;
         }
 
-        function updateScores(betsInputs, tricksInputs) {
-            var k = increment(dealer);
+        function decrement(i) {
+            return (len - i - 1) % len;
+        }
+
+        function shift(values, position) {
+            position = decrement(position);
+            var shifted = [];
             for (var i = 0; i < len; i++) {
-                var bet = betsInputs[i], trick = tricksInputs[i];
-                var diff = Math.abs(bet - trick);
+                shifted[i] = values[position];
+                position = increment(position);
+            }
+            return shifted;
+        }
+
+        function updateScores(bids, tricks) {
+            for (var i = 0; i < len; i++) {
+                var bid = bids[i], trick = tricks[i];
+                var diff = Math.abs(bid - trick);
                 if (diff == 0)
-                    score[k] += 10 + bet * 2;
+                    score[i] += 10 + bid * 2;
                 else
-                    score[k] -= 2 * diff;
-                k = increment(k);
+                    score[i] -= 2 * diff;
             }
         }
 
@@ -163,7 +237,7 @@
         }
 
 
-        function addRow(values, first) {
+        function addGameRow(values, first) {
             var row = $('<tr>');
             if (first)
                 row.append($('<td>').append(first));
@@ -173,10 +247,40 @@
             return row;
         }
 
+        function editGamePlayersRow() {
+            var row = $('<tr>');
+            row.append($('<td>').append(' '));
+            for (var i = 0; i < len; i++)
+                row.append($('<td>').append(players[i]));
+            $('#gameEditor').append(row);
+            return row;
+        }
+
+        function addEditRow(bidsInputs, tricksInputs, card) {
+            var row = $('<tr>');
+            row.append($('<td>').append(card));
+            for (var i = 0; i < bidsInputs.length; i++)
+                row.append($('<td>').append(bidsInputs[i]).append(tricksInputs[i]));
+            $('#gameEditor').append(row);
+            return row;
+        }
+
+
         function createInputs(len) {
             var inputs = [];
             for (var i = 0; i < len; i++)
                 inputs[i] = document.createElement('input');
+            return inputs;
+        }
+
+        function createEditInputs(values) {
+            var inputs = [];
+            for (var i = 0; i < values.length; i++) {
+                inputs[i] = $('<input>').attr({
+                    type: 'text',
+                    value: values[i]
+                })
+            }
             return inputs;
         }
     });
@@ -188,7 +292,18 @@
     <button id="start">Start Game</button>
     <button id="test">Test Game</button>
 </div>
-<table id="game"></table>
-<div id='messages'></div>
+<table id="main">
+    <tr>
+        <td id="board">
+            <table id="game"></table>
+            <div id='messages'></div>
+            <a id='toggleEditor' href="#">Show/Hide Editor</a>
+        </td>
+        <td id="editor">
+            <table id="gameEditor"></table>
+            <button id="recalculate">Recalculate</button>
+        </td>
+    </tr>
+</table>
 </body>
 </html>
