@@ -25,51 +25,55 @@
 <body>
 <script>
     $(document).ready(function () {
-        var cardLim, players, len, dealer, score = [], roundCount = 0, card = 1;
+        var cardLim, players, len, dealer, score = [], roundCount = 0, card = 1, dealerStr;
 
         $('#start').click(function () {
             players = $('#players').val().split(",");
-            len = players.length;
-            var dealer_str = $('#dealer').val();
-            for(var i = 0; i < len; i++){
-                if(dealer_str === players[i]){
-                    dealer = i;
-                }
-                score[i] = 0;
-            }
+            dealerStr = $('#dealer').val();
             cardLim = parseInt($('#cardLim').val());
+            startGame();
+        });
+
+        $('#test').click(function () {
+            players = ['igor', 'katie', 'emery'];
+            dealerStr = 'igor';
+            cardLim = 3;
             startGame();
         });
 
         function startGame() {
             $('#init').remove();
+            len = players.length;
+            for (var i = 0; i < len; i++) {
+                if (dealerStr === players[i])
+                    dealer = i;
+                score[i] = 0;
+            }
             addRow(players, ' ');
             newRound();
         }
 
         function newRound() {
             roundCount++;
-            if (card == 0) {
+            if (card == 0)
                 return;
-            }
             var playersRow = addRow(arrangePlayers(dealer), card);
             var betsInputs = createInputs(len);
             var betsRow = addRow(betsInputs, ' ');
             $(betsInputs[0]).focus();
-            for (var i = 0; i < len; i++) {
+            for (var i = 0; i < len; i++)
                 (function (i) {
                     $(betsInputs[i]).keyup(function () {
-                        if (hasNumber(this)) {
+                        if (hasNumber(this))
                             if (i < len - 1) {
                                 $(betsInputs[i + 1]).focus();
                                 if (i == len - 2) {
                                     var message;
                                     var diff = card - sum(values(betsInputs.slice(0, i + 1)));
-                                    if (diff > 0) {
+                                    if (diff >= 0)
                                         message = 'Can not bid ' + diff;
-                                    } else {
+                                    else
                                         message = 'Can bid everything';
-                                    }
                                     showMessage(message);
                                 }
                             } else if (i == len - 1) {
@@ -80,13 +84,13 @@
                                 var tricksRow = addRow(tricksInputs, ' ');
                                 showMessage('');
                                 $(tricksInputs[0]).focus();
-                                for (var k = 0; k < len; k++) {
+                                for (var k = 0; k < len; k++)
                                     (function (k) {
                                         $(tricksInputs[k]).keyup(function () {
-                                            if (hasNumber(this)) {
-                                                if (k < len - 1) {
+                                            if (hasNumber(this))
+                                                if (k < len - 1)
                                                     $(tricksInputs[k + 1]).focus();
-                                                } else if (k == len - 1) {
+                                                else if (k == len - 1) {
                                                     betsValuesRow.remove();
                                                     tricksRow.remove();
                                                     playersRow.remove();
@@ -96,15 +100,11 @@
                                                     dealer = increment(dealer);
                                                     newRound();
                                                 }
-                                            }
                                         });
                                     })(k);
-                                }
                             }
-                        }
                     });
                 })(i);
-            }
         }
 
         function arrangePlayers(dealer) {
@@ -117,8 +117,7 @@
         }
 
         function hasNumber(input) {
-            var val = $(input).val();
-            return $.isNumeric(val);
+            return $.isNumeric($(input).val());
         }
 
         function increment(i) {
@@ -130,21 +129,19 @@
             for (var i = 0; i < len; i++) {
                 var bet = betsInputs[i], trick = tricksInputs[i];
                 var diff = Math.abs(bet - trick);
-                if (diff == 0) {
+                if (diff == 0)
                     score[k] += 10 + bet * 2;
-                } else {
+                else
                     score[k] -= 2 * diff;
-                }
                 k = increment(k);
             }
         }
 
         function nextCard() {
-            if (roundCount < cardLim) {
+            if (roundCount < cardLim)
                 card++;
-            } else {
+            else
                 card--;
-            }
         }
 
         function showMessage(m) {
@@ -153,38 +150,33 @@
 
         function sum(values) {
             var sum = 0;
-            for (var i = 0; i < values.length; i++) {
+            for (var i = 0; i < values.length; i++)
                 sum += values[i];
-            }
             return sum;
         }
 
         function values(inputs) {
             var vals = [];
-            for (var i = 0; i < inputs.length; i++) {
+            for (var i = 0; i < inputs.length; i++)
                 vals[i] = parseInt($(inputs[i]).val());
-            }
             return vals;
         }
 
 
         function addRow(values, first) {
             var row = $('<tr>');
-            if (first) {
+            if (first)
                 row.append($('<td>').append(first));
-            }
-            for (var i = 0; i < values.length; i++) {
+            for (var i = 0; i < values.length; i++)
                 row.append($('<td>').append(values[i]));
-            }
             $('#game').append(row);
             return row;
         }
 
         function createInputs(len) {
             var inputs = [];
-            for (var i = 0; i < len; i++) {
+            for (var i = 0; i < len; i++)
                 inputs[i] = document.createElement('input');
-            }
             return inputs;
         }
     });
@@ -194,6 +186,7 @@
     <label for="dealer">Dealer:</label><input id="dealer" type="text"><br/>
     <label for="cardLim">Card Limit:</label><input id="cardLim" type="text"><br/>
     <button id="start">Start Game</button>
+    <button id="test">Test Game</button>
 </div>
 <table id="game"></table>
 <div id='messages'></div>
