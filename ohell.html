@@ -34,12 +34,23 @@
                     $(betsInputs[i]).keyup(function (e) {
                         if (i < len - 1) {
                             $(betsInputs[i + 1]).focus();
+                            if (i == len - 2) {
+                                var message;
+                                var diff = card - sum(values(betsInputs.slice(0, i + 1)));
+                                if (diff > 0) {
+                                    message = 'Can not bid ' + diff;
+                                } else {
+                                    message = 'Can bid everything';
+                                }
+                                showMessage(message);
+                            }
                         } else if (i == len - 1) {
                             betsRow.remove();
                             var betsValues = values(betsInputs);
                             var betsValuesRow = addRow(betsValues, card);
                             var tricksInputs = createInputs(len);
                             var tricksRow = addRow(tricksInputs, ' ');
+                            showMessage('');
                             $(tricksInputs[0]).focus();
                             for (var k = 0; k < len; k++) {
                                 (function (k) {
@@ -83,12 +94,24 @@
             }
         }
 
-        function values(inputs) {
-            var values = [];
-            for (var i = 0; i < len; i++) {
-                values[i] = parseInt($(inputs[i]).val());
+        function showMessage(m) {
+            $('#messages').text(m);
+        }
+
+        function sum(values) {
+            var sum = 0;
+            for (var i = 0; i < values.length; i++) {
+                sum += values[i];
             }
-            return values;
+            return sum;
+        }
+
+        function values(inputs) {
+            var vals = [];
+            for (var i = 0; i < inputs.length; i++) {
+                vals[i] = parseInt($(inputs[i]).val());
+            }
+            return vals;
 
         }
 
@@ -115,6 +138,6 @@
     });
 </script>
 <table id="game"></table>
-<div id='inputs'></div>
+<div id='messages'></div>
 </body>
 </html>
