@@ -9,25 +9,52 @@
             margin-left: 5px;
             text-align: right;
         }
+
+        #init input {
+            width: 200px;
+            margin-bottom: 5px;
+        }
+
+        #init label {
+            display: inline-block;
+            width: 100px;
+        }
+
     </style>
 </head>
 <body>
 <script>
     $(document).ready(function () {
-        var CARD_LIM = 2;
-        var players = ['igor', 'katie', 'emery'], score = [0, 0, 0], roundCount = 0;
-        var card = 1, dealer = 0;
-        var len = players.length;
-        addRow(players, ' ');
-        newRound();
+        var cardLim, players, len, dealer, score = [], roundCount = 0, card = 1;
+
+        $('#start').click(function () {
+            players = $('#players').val().split(",");
+            len = players.length;
+            var dealer_str = $('#dealer').val();
+            for(var i = 0; i < len; i++){
+                if(dealer_str === players[i]){
+                    dealer = i;
+                }
+                score[i] = 0;
+            }
+            cardLim = parseInt($('#cardLim').val());
+            startGame();
+        });
+
+        function startGame() {
+            $('#init').remove();
+            addRow(players, ' ');
+            newRound();
+        }
 
         function newRound() {
             roundCount++;
             if (card == 0) {
                 return;
             }
+            var playersRow = addRow(arrangePlayers(dealer), card);
             var betsInputs = createInputs(len);
-            var betsRow = addRow(betsInputs, card);
+            var betsRow = addRow(betsInputs, ' ');
             $(betsInputs[0]).focus();
             for (var i = 0; i < len; i++) {
                 (function (i) {
@@ -48,7 +75,7 @@
                             } else if (i == len - 1) {
                                 betsRow.remove();
                                 var betsValues = values(betsInputs);
-                                var betsValuesRow = addRow(betsValues, card);
+                                var betsValuesRow = addRow(betsValues, ' ');
                                 var tricksInputs = createInputs(len);
                                 var tricksRow = addRow(tricksInputs, ' ');
                                 showMessage('');
@@ -62,9 +89,11 @@
                                                 } else if (k == len - 1) {
                                                     betsValuesRow.remove();
                                                     tricksRow.remove();
+                                                    playersRow.remove();
                                                     updateScores(betsValues, values(tricksInputs));
                                                     addRow(score, card);
                                                     nextCard();
+                                                    dealer = increment(dealer);
                                                     newRound();
                                                 }
                                             }
@@ -78,25 +107,40 @@
             }
         }
 
+        function arrangePlayers(dealer) {
+            var p = [];
+            while (p.length < len) {
+                dealer = increment(dealer);
+                p.push(players[dealer]);
+            }
+            return p;
+        }
+
         function hasNumber(input) {
             var val = $(input).val();
             return $.isNumeric(val);
         }
 
+        function increment(i) {
+            return (i + 1) % len;
+        }
+
         function updateScores(betsInputs, tricksInputs) {
+            var k = increment(dealer);
             for (var i = 0; i < len; i++) {
                 var bet = betsInputs[i], trick = tricksInputs[i];
                 var diff = Math.abs(bet - trick);
                 if (diff == 0) {
-                    score[i] += 10 + bet * 2;
+                    score[k] += 10 + bet * 2;
                 } else {
-                    score[i] -= 2 * diff;
+                    score[k] -= 2 * diff;
                 }
+                k = increment(k);
             }
         }
 
         function nextCard() {
-            if (roundCount < CARD_LIM) {
+            if (roundCount < cardLim) {
                 card++;
             } else {
                 card--;
@@ -121,7 +165,6 @@
                 vals[i] = parseInt($(inputs[i]).val());
             }
             return vals;
-
         }
 
 
@@ -146,6 +189,12 @@
         }
     });
 </script>
+<div id="init">
+    <label for="players">Players:</label><input id="players" type="text"><br/>
+    <label for="dealer">Dealer:</label><input id="dealer" type="text"><br/>
+    <label for="cardLim">Card Limit:</label><input id="cardLim" type="text"><br/>
+    <button id="start">Start Game</button>
+</div>
 <table id="game"></table>
 <div id='messages'></div>
 </body>
