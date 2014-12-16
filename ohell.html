@@ -31,47 +31,56 @@
             $(betsInputs[0]).focus();
             for (var i = 0; i < len; i++) {
                 (function (i) {
-                    $(betsInputs[i]).keyup(function (e) {
-                        if (i < len - 1) {
-                            $(betsInputs[i + 1]).focus();
-                            if (i == len - 2) {
-                                var message;
-                                var diff = card - sum(values(betsInputs.slice(0, i + 1)));
-                                if (diff > 0) {
-                                    message = 'Can not bid ' + diff;
-                                } else {
-                                    message = 'Can bid everything';
+                    $(betsInputs[i]).keyup(function () {
+                        if (hasNumber(this)) {
+                            if (i < len - 1) {
+                                $(betsInputs[i + 1]).focus();
+                                if (i == len - 2) {
+                                    var message;
+                                    var diff = card - sum(values(betsInputs.slice(0, i + 1)));
+                                    if (diff > 0) {
+                                        message = 'Can not bid ' + diff;
+                                    } else {
+                                        message = 'Can bid everything';
+                                    }
+                                    showMessage(message);
                                 }
-                                showMessage(message);
-                            }
-                        } else if (i == len - 1) {
-                            betsRow.remove();
-                            var betsValues = values(betsInputs);
-                            var betsValuesRow = addRow(betsValues, card);
-                            var tricksInputs = createInputs(len);
-                            var tricksRow = addRow(tricksInputs, ' ');
-                            showMessage('');
-                            $(tricksInputs[0]).focus();
-                            for (var k = 0; k < len; k++) {
-                                (function (k) {
-                                    $(tricksInputs[k]).keyup(function (e) {
-                                        if (k < len - 1) {
-                                            $(tricksInputs[k + 1]).focus();
-                                        } else if (k == len - 1) {
-                                            betsValuesRow.remove();
-                                            tricksRow.remove();
-                                            updateScores(betsValues, values(tricksInputs));
-                                            addRow(score, card);
-                                            nextCard();
-                                            newRound();
-                                        }
-                                    });
-                                })(k);
+                            } else if (i == len - 1) {
+                                betsRow.remove();
+                                var betsValues = values(betsInputs);
+                                var betsValuesRow = addRow(betsValues, card);
+                                var tricksInputs = createInputs(len);
+                                var tricksRow = addRow(tricksInputs, ' ');
+                                showMessage('');
+                                $(tricksInputs[0]).focus();
+                                for (var k = 0; k < len; k++) {
+                                    (function (k) {
+                                        $(tricksInputs[k]).keyup(function () {
+                                            if (hasNumber(this)) {
+                                                if (k < len - 1) {
+                                                    $(tricksInputs[k + 1]).focus();
+                                                } else if (k == len - 1) {
+                                                    betsValuesRow.remove();
+                                                    tricksRow.remove();
+                                                    updateScores(betsValues, values(tricksInputs));
+                                                    addRow(score, card);
+                                                    nextCard();
+                                                    newRound();
+                                                }
+                                            }
+                                        });
+                                    })(k);
+                                }
                             }
                         }
                     });
                 })(i);
             }
+        }
+
+        function hasNumber(input) {
+            var val = $(input).val();
+            return $.isNumeric(val);
         }
 
         function updateScores(betsInputs, tricksInputs) {
