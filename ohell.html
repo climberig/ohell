@@ -14,25 +14,63 @@
 <body>
 <script>
     $(document).ready(function () {
+        var CARD_LIM = 3;
         var players = ['igor', 'katie', 'emery'];
+        var score = [0, 0, 0];
         var card = 1;
         var dealer = 0;
         var len = players.length;
         addRow(players, ' ');
-        var betsInputs = createInputs(len);
-        $(betsInputs[len - 1]).keypress(function (e) {
-            if (e.which == 13) {
-                betsRow.remove();
-                var values = [];
-                for (var i = 0; i < len; i++) {
-                    values[i] = parseInt($(betsInputs[i]).val());
-                }
-                addRow(values, card);
-                var tricksInputs = createInputs(len);
-                var tricksRow = addRow(tricksInputs, ' ');
+        newRound();
+
+        function newRound() {
+            if (card == 0) {
+                return;
             }
-        });
-        var betsRow = addRow(betsInputs, ' ');
+            var betsInputs = createInputs(len);
+            var betsRow = addRow(betsInputs, ' ');
+            $(betsInputs[len - 1]).keypress(function (e) {
+                if (e.which == 13) {
+                    betsRow.remove();
+                    var betsValues = values(betsInputs);
+                    var betsValuesRow = addRow(betsValues, card);
+                    var tricksInputs = createInputs(len);
+                    var tricksRow = addRow(tricksInputs, ' ');
+                    $(tricksInputs[len - 1]).keypress(function (e) {
+                        if (e.which == 13) {
+                            betsValuesRow.remove();
+                            tricksRow.remove();
+                            updateScores(betsValues, values(tricksInputs));
+                            addRow(score, card);
+                            card++;
+                            newRound();
+                        }
+                    });
+                }
+            });
+        }
+
+        function updateScores(betsInputs, tricksInputs) {
+            for (var i = 0; i < len; i++) {
+                var bet = betsInputs[i], trick = tricksInputs[i];
+                var diff = Math.abs(bet - trick);
+                if (diff == 0) {
+                    score[i] += 10 + bet * 2;
+                } else {
+                    score[i] -= 2 * diff;
+                }
+            }
+        }
+
+        function values(inputs) {
+            var values = [];
+            for (var i = 0; i < len; i++) {
+                values[i] = parseInt($(inputs[i]).val());
+            }
+            return values;
+
+        }
+
 
         function addRow(values, first) {
             var row = $('<tr>');
