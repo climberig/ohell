@@ -4,7 +4,7 @@
     <title>Ohell!</title>
     <script src="jquery-1.11.1.js"></script>
     <style>
-        #inputs input {
+        #game input, td {
             width: 40px;
             margin-left: 5px;
             text-align: right;
@@ -14,40 +14,53 @@
 <body>
 <script>
     $(document).ready(function () {
-        var CARD_LIM = 3;
-        var players = ['igor', 'katie', 'emery'];
-        var score = [0, 0, 0];
-        var card = 1;
-        var dealer = 0;
+        var CARD_LIM = 2;
+        var players = ['igor', 'katie', 'emery'], score = [0, 0, 0], roundCount = 0;
+        var card = 1, dealer = 0;
         var len = players.length;
         addRow(players, ' ');
         newRound();
 
         function newRound() {
+            roundCount++;
             if (card == 0) {
                 return;
             }
             var betsInputs = createInputs(len);
-            var betsRow = addRow(betsInputs, ' ');
-            $(betsInputs[len - 1]).keypress(function (e) {
-                if (e.which == 13) {
-                    betsRow.remove();
-                    var betsValues = values(betsInputs);
-                    var betsValuesRow = addRow(betsValues, card);
-                    var tricksInputs = createInputs(len);
-                    var tricksRow = addRow(tricksInputs, ' ');
-                    $(tricksInputs[len - 1]).keypress(function (e) {
-                        if (e.which == 13) {
-                            betsValuesRow.remove();
-                            tricksRow.remove();
-                            updateScores(betsValues, values(tricksInputs));
-                            addRow(score, card);
-                            card++;
-                            newRound();
+            var betsRow = addRow(betsInputs, card);
+            $(betsInputs[0]).focus();
+            for (var i = 0; i < len; i++) {
+                (function (i) {
+                    $(betsInputs[i]).keyup(function (e) {
+                        if (i < len - 1) {
+                            $(betsInputs[i + 1]).focus();
+                        } else if (i == len - 1) {
+                            betsRow.remove();
+                            var betsValues = values(betsInputs);
+                            var betsValuesRow = addRow(betsValues, card);
+                            var tricksInputs = createInputs(len);
+                            var tricksRow = addRow(tricksInputs, ' ');
+                            $(tricksInputs[0]).focus();
+                            for (var k = 0; k < len; k++) {
+                                (function (k) {
+                                    $(tricksInputs[k]).keyup(function (e) {
+                                        if (k < len - 1) {
+                                            $(tricksInputs[k + 1]).focus();
+                                        } else if (k == len - 1) {
+                                            betsValuesRow.remove();
+                                            tricksRow.remove();
+                                            updateScores(betsValues, values(tricksInputs));
+                                            addRow(score, card);
+                                            nextCard();
+                                            newRound();
+                                        }
+                                    });
+                                })(k);
+                            }
                         }
                     });
-                }
-            });
+                })(i);
+            }
         }
 
         function updateScores(betsInputs, tricksInputs) {
@@ -59,6 +72,14 @@
                 } else {
                     score[i] -= 2 * diff;
                 }
+            }
+        }
+
+        function nextCard() {
+            if (roundCount < CARD_LIM) {
+                card++;
+            } else {
+                card--;
             }
         }
 
