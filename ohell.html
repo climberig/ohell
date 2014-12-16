@@ -17,8 +17,10 @@
             vertical-align: top;
         }
 
+
         #recalculate {
             float: right;
+            margin-top: 10px;
         }
 
         #game {
@@ -95,7 +97,7 @@
 
         function startGame() {
             $('#init').remove();
-            $('#board').toggle();
+            $('#board').toggle(true);
             len = players.length;
             for (var i = 0; i < len; i++) {
                 if (dealerStr === players[i])
@@ -113,18 +115,18 @@
             if (card == 0)
                 return;
             var playersRow = addGameRow(arrangePlayers(dealer), card);
-            var betsInputs = createInputs(len);
-            var betsRow = addGameRow(betsInputs, ' ');
-            $(betsInputs[0]).focus();
+            var bidInputs = createInputs(len);
+            var bidRow = addGameRow(bidInputs, ' ');
+            $(bidInputs[0]).focus();
             for (var i = 0; i < len; i++)
                 (function (i) {
-                    $(betsInputs[i]).keyup(function () {
+                    $(bidInputs[i]).keyup(function () {
                         if (hasNumber(this))
                             if (i < len - 1) {
-                                $(betsInputs[i + 1]).focus();
+                                $(bidInputs[i + 1]).focus();
                                 if (i == len - 2) {
                                     var message;
-                                    var diff = card - sum(values(betsInputs.slice(0, i + 1)));
+                                    var diff = card - sum(values(bidInputs.slice(0, i + 1)));
                                     if (diff >= 0)
                                         message = 'Can not bid ' + diff;
                                     else
@@ -143,10 +145,10 @@
                                                 if (k < len - 1)
                                                     $(tricksInputs[k + 1]).focus();
                                                 else if (k == len - 1) {
-                                                    betsRow.remove();
+                                                    bidRow.remove();
                                                     tricksRow.remove();
                                                     playersRow.remove();
-                                                    var bids = shift(values(betsInputs), dealer), tricks = shift(values(tricksInputs), dealer);
+                                                    var bids = shift(values(bidInputs), dealer), tricks = shift(values(tricksInputs), dealer);
                                                     updateScores(bids, tricks);
                                                     addGameRow(score, card);
                                                     addEditTable(bids, tricks, card);
@@ -265,11 +267,10 @@
             return row;
         }
 
-
         function createInputs(len) {
             var inputs = [];
             for (var i = 0; i < len; i++)
-                inputs[i] = document.createElement('input');
+                inputs[i] = $('<input>');
             return inputs;
         }
 
