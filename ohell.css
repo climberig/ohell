@@ -1,0 +1,42 @@
+#editor {
+    display: none;
+}
+
+#board {
+    display: none;
+}
+
+#main tr {
+    vertical-align: top;
+}
+
+#recalculate {
+    float: right;
+    margin-top: 10px;
+}
+
+#game {
+    float: left;
+}
+
+#gameEditor input {
+    width: 30px;
+    margin-left: 5px;
+    text-align: right;
+}
+
+#game input, td {
+    width: 40px;
+    margin-left: 5px;
+    text-align: right;
+}
+
+#init input {
+    width: 200px;
+    margin-bottom: 5px;
+}
+
+#init label {
+    display: inline-block;
+    width: 100px;
+}
