@@ -102,7 +102,7 @@
             }
             initialDealer = dealer;
             addGameRow(players, ' ');
-            editGamePlayersRow();
+            addEditorPlayers();
             newRound();
         }
 
@@ -111,7 +111,7 @@
             if (card == 0)
                 return;
             var playersRow = addGameRow(arrangePlayers(dealer), card);
-            var bidInputs = createInputs(len);
+            var bidInputs = inputs(len);
             var bidRow = addGameRow(bidInputs, ' ');
             $(bidInputs[0]).focus();
             for (var i = 0; i < len; i++)
@@ -130,7 +130,7 @@
                                     showMessage(message);
                                 }
                             } else if (i == len - 1) {
-                                var tricksInputs = createInputs(len);
+                                var tricksInputs = inputs(len);
                                 var tricksRow = addGameRow(tricksInputs, ' ');
                                 showMessage('');
                                 $(tricksInputs[0]).focus();
@@ -147,7 +147,7 @@
                                                     var bids = shift(values(bidInputs), dealer), tricks = shift(values(tricksInputs), dealer);
                                                     updateScores(bids, tricks);
                                                     addGameRow(score, card);
-                                                    addEditTable(bids, tricks, card);
+                                                    updateEditor(bids, tricks, card);
                                                     allCards.push(card);
                                                     nextCard();
                                                     dealer = increment(dealer);
@@ -160,9 +160,9 @@
                 })(i);
         }
 
-        function addEditTable(bids, tricks, card) {
-            var bidInputs = createEditInputs(bids), trickInputs = createEditInputs(tricks);
-            addEditRow(bidInputs, trickInputs, card);
+        function updateEditor(bids, tricks, card) {
+            var bidInputs = inputsWithValues(bids), trickInputs = inputsWithValues(tricks);
+            addEditorRow(bidInputs, trickInputs, card);
             allBidInputs.push(bidInputs);
             allTricksInputs.push(trickInputs);
         }
@@ -245,7 +245,7 @@
             return row;
         }
 
-        function editGamePlayersRow() {
+        function addEditorPlayers() {
             var row = $('<tr>');
             row.append($('<td>').append(' '));
             for (var i = 0; i < len; i++)
@@ -254,7 +254,7 @@
             return row;
         }
 
-        function addEditRow(bidsInputs, tricksInputs, card) {
+        function addEditorRow(bidsInputs, tricksInputs, card) {
             var row = $('<tr>');
             row.append($('<td>').append(card));
             for (var i = 0; i < bidsInputs.length; i++)
@@ -263,14 +263,14 @@
             return row;
         }
 
-        function createInputs(len) {
+        function inputs(len) {
             var inputs = [];
             for (var i = 0; i < len; i++)
                 inputs[i] = $('<input>');
             return inputs;
         }
 
-        function createEditInputs(values) {
+        function inputsWithValues(values) {
             var inputs = [];
             for (var i = 0; i < values.length; i++) {
                 inputs[i] = $('<input>').attr({
