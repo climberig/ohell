@@ -17,7 +17,6 @@
             vertical-align: top;
         }
 
-
         #recalculate {
             float: right;
             margin-top: 10px;
@@ -27,12 +26,8 @@
             float: left;
         }
 
-        #gameEditor {
-            width: 500px;
-        }
-
         #gameEditor input {
-            width: 40px;
+            width: 30px;
             margin-left: 5px;
             text-align: right;
         }
@@ -96,9 +91,10 @@
         });
 
         function startGame() {
+            len = players.length;
             $('#init').remove();
             $('#board').toggle(true);
-            len = players.length;
+            $('#gameEditor').css('width', ((len + 1) * 100) + 'px');
             for (var i = 0; i < len; i++) {
                 if (dealerStr === players[i])
                     dealer = i;
