@@ -94,7 +94,7 @@
             len = players.length;
             $('#init').remove();
             $('#board').toggle(true);
-            $('#gameEditor').css('width', ((len + 1) * 100) + 'px');
+            $('#gameEditor').width((len + 1) * 100);
             for (var i = 0; i < len; i++) {
                 if (dealerStr === players[i])
                     dealer = i;
