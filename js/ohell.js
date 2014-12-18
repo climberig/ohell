@@ -4,8 +4,10 @@ $(document).ready(function () {
 
     $('#start').click(function () {
         players = $('#players').val().split(",");
-        dealerStr = $('#dealer').val();
-        cardLim = parseInt($('#cardLim').val());
+        for (var i = 0; i < players.length; i++)
+            players[i] = $.trim(players[i])
+        dealerStr = $.trim($('#dealer').val());
+        cardLim = parseInt($.trim($('#cardLim').val()));
         startGame();
     });
 
