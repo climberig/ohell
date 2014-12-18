@@ -1,25 +1,41 @@
 $(document).ready(function () {
-    var cardLim, players, len, dealer, score = [], roundCount = 0, card = 1, dealerStr, initialDealer;
+    var cardLim, players, len, dealer, score = [], roundCount = 0, card = 1, initialDealer;
     var allBidInputs = [], allTricksInputs = [], allCards = [];
 
     $('#start').click(function () {
-        players = $('#players').val().split(",");
-        for (var i = 0; i < players.length; i++)
-            players[i] = $.trim(players[i])
-        dealerStr = $.trim($('#dealer').val());
-        cardLim = parseInt($.trim($('#cardLim').val()));
-        startGame();
+        var playersStr = $.trim($('#players').val());
+        var dealerStr = $.trim($('#dealer').val());
+        if (!playersStr || !dealerStr)
+            alert("Enter players and dealer");
+        else if (playersStr.indexOf(dealerStr) == -1)
+            alert("Dealer should be one of the players");
+        else {
+            players = playersStr.split(",");
+            for (var i = 0; i < players.length; i++)
+                players[i] = $.trim(players[i]);
+            len = players.length;
+            dealer = dealerIndex(dealerStr);
+            cardLim = parseInt($.trim($('#cardLim').val()));
+            initScores();
+            startGame();
+        }
     });
 
     $('#test').click(function () {
         players = ['igor', 'katie', 'emery'];
-        dealerStr = 'igor';
-        cardLim = 3;
+        len = players.length;
+        dealer = dealerIndex('igor');
+        cardLim = 2;
+        initScores();
         startGame();
     });
 
     $('#toggleEditor').click(function () {
         $('#editor').toggle();
+    });
+
+    $('#helpToggle').click(function () {
+        $('#help').toggle();
     });
 
     $('#recalculate').click(function () {
@@ -39,15 +55,11 @@ $(document).ready(function () {
     });
 
     function startGame() {
-        len = players.length;
         $('#init').remove();
         $('#board').toggle(true);
+        $('#toggleEditor').toggle(true);
+        $('#game').width((len + 1) * 70);
         $('#gameEditor').width((len + 1) * 100);
-        for (var i = 0; i < len; i++) {
-            if (dealerStr === players[i])
-                dealer = i;
-            score[i] = 0;
-        }
         initialDealer = dealer;
         addGameRow(players, ' ');
         addEditorPlayers();
@@ -56,11 +68,13 @@ $(document).ready(function () {
 
     function newRound() {
         roundCount++;
-        if (card == 0)
+        if (card == 0) {
+            showMessage(winner() + " won! Congrats!");
             return;
+        }
         var playersRow = addGameRow(arrangePlayers(dealer), card);
         var bidInputs = inputs(len);
-        var bidRow = addGameRow(bidInputs, ' ');
+        var bidRow = addGameRow(bidInputs, 'Bids');
         $(bidInputs[0]).focus();
         for (var i = 0; i < len; i++)
             (function (i) {
@@ -79,7 +93,7 @@ $(document).ready(function () {
                             }
                         } else if (i == len - 1) {
                             var tricksInputs = inputs(len);
-                            var tricksRow = addGameRow(tricksInputs, ' ');
+                            var tricksRow = addGameRow(tricksInputs, 'Tricks');
                             showMessage('');
                             $(tricksInputs[0]).focus();
                             for (var k = 0; k < len; k++)
@@ -108,11 +122,41 @@ $(document).ready(function () {
             })(i);
     }
 
+    function winner() {
+        var winners = '', indices = maxIndices(score);
+        for (var i = 0; i < indices.length; i++)
+            winners += players[indices[i]] + ",";
+        return winners.substring(0, winners.length - 1);
+    }
+
     function updateEditor(bids, tricks, card) {
         var bidInputs = inputsWithValues(bids), trickInputs = inputsWithValues(tricks);
         addEditorRow(bidInputs, trickInputs, card);
         allBidInputs.push(bidInputs);
         allTricksInputs.push(trickInputs);
+    }
+
+    function initScores() {
+        for (var i = 0; i < len; i++)
+            score[i] = 0;
+    }
+
+    function maxIndices(elements) {
+        var indices = [0], max = elements[0];
+        for (var i = 1; i < elements.length; i++)
+            if (max == elements[i])
+                indices.push(i);
+            else if (max < elements[i]) {
+                indices = [i];
+                max = elements[i];
+            }
+        return indices;
+    }
+
+    function dealerIndex(dealer) {
+        for (var i = 0; i < len; i++)
+            if (dealer == players[i])
+                return i;
     }
 
     function arrangePlayers(dealer) {
