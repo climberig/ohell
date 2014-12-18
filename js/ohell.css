@@ -10,6 +10,10 @@
     vertical-align: top;
 }
 
+#test{
+    display: none;
+}
+
 #help {
     display: none;
 }
