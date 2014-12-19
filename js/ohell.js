@@ -43,8 +43,7 @@ $(document).ready(function () {
         roundCount = 0;
         dealer = initialDealer;
         addGameRow(players, ' ');
-        for (var i = 0; i < len; i++)
-            score[i] = 0;
+        initScores();
         for (var i = 0; i < allBidInputs.length; i++) {
             updateScores(values(allBidInputs[i]), values(allTricksInputs[i]));
             addGameRow(score, allCards[i]);
