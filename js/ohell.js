@@ -77,6 +77,7 @@ $(document).ready(function () {
         $(bidInputs[0]).focus();
         for (var i = 0; i < len; i++)
             (function (i) {
+                var tricksInputs;
                 $(bidInputs[i]).keyup(function () {
                     if (hasNumber(this))
                         if (i < len - 1) {
@@ -91,31 +92,35 @@ $(document).ready(function () {
                                 showMessage(message);
                             }
                         } else if (i == len - 1) {
-                            var tricksInputs = inputs(len);
-                            var tricksRow = addGameRow(tricksInputs, 'Tricks');
-                            showMessage('');
-                            $(tricksInputs[0]).focus();
-                            for (var k = 0; k < len; k++)
-                                (function (k) {
-                                    $(tricksInputs[k]).keyup(function () {
-                                        if (hasNumber(this))
-                                            if (k < len - 1)
-                                                $(tricksInputs[k + 1]).focus();
-                                            else if (k == len - 1) {
-                                                bidRow.remove();
-                                                tricksRow.remove();
-                                                playersRow.remove();
-                                                var bids = shift(values(bidInputs), dealer), tricks = shift(values(tricksInputs), dealer);
-                                                updateScores(bids, tricks);
-                                                addGameRow(score, card);
-                                                updateEditor(bids, tricks, card);
-                                                allCards.push(card);
-                                                nextCard();
-                                                dealer = increment(dealer);
-                                                newRound();
-                                            }
-                                    });
-                                })(k);
+                            if (tricksInputs) {
+                                $(tricksInputs[0]).focus();
+                            } else {
+                                tricksInputs = inputs(len);
+                                var tricksRow = addGameRow(tricksInputs, 'Tricks');
+                                showMessage('');
+                                $(tricksInputs[0]).focus();
+                                for (var k = 0; k < len; k++)
+                                    (function (k) {
+                                        $(tricksInputs[k]).keyup(function () {
+                                            if (hasNumber(this))
+                                                if (k < len - 1)
+                                                    $(tricksInputs[k + 1]).focus();
+                                                else if (k == len - 1) {
+                                                    bidRow.remove();
+                                                    tricksRow.remove();
+                                                    playersRow.remove();
+                                                    var bids = shift(values(bidInputs), dealer), tricks = shift(values(tricksInputs), dealer);
+                                                    updateScores(bids, tricks);
+                                                    addGameRow(score, card);
+                                                    updateEditor(bids, tricks, card);
+                                                    allCards.push(card);
+                                                    nextCard();
+                                                    dealer = increment(dealer);
+                                                    newRound();
+                                                }
+                                        });
+                                    })(k);
+                            }
                         }
                 });
             })(i);
