@@ -6,11 +6,11 @@ $(document).ready(function () {
         var playersStr = $.trim($('#players').val());
         var dealerStr = $.trim($('#dealer').val());
         if (!playersStr || !dealerStr)
-            alert("Enter players and dealer");
-        else if (playersStr.indexOf(dealerStr) == -1)
-            alert("Dealer should be one of the players");
+            alert('Enter players and dealer');
+        else if (playersStr.indexOf(dealerStr) === -1)
+            alert('Dealer should be one of the players');
         else {
-            players = playersStr.split(",");
+            players = playersStr.split(',');
             for (var i = 0; i < players.length; i++)
                 players[i] = $.trim(players[i]);
             len = players.length;
@@ -67,8 +67,8 @@ $(document).ready(function () {
 
     function newRound() {
         roundCount++;
-        if (card == 0) {
-            showMessage(winner() + " won! Congrats!");
+        if (card === 0) {
+            showMessage(winner() + ' won! Congrats!');
             return;
         }
         var playersRow = addGameRow(arrangePlayers(dealer), card);
@@ -82,7 +82,7 @@ $(document).ready(function () {
                     if (hasNumber(this))
                         if (i < len - 1) {
                             $(bidInputs[i + 1]).focus();
-                            if (i == len - 2) {
+                            if (i === len - 2) {
                                 var message;
                                 var diff = card - sum(values(bidInputs.slice(0, i + 1)));
                                 if (diff >= 0)
@@ -91,7 +91,7 @@ $(document).ready(function () {
                                     message = 'Can bid everything';
                                 showMessage(message);
                             }
-                        } else if (i == len - 1) {
+                        } else if (i === len - 1) {
                             if (tricksInputs) {
                                 $(tricksInputs[0]).focus();
                             } else {
@@ -105,7 +105,7 @@ $(document).ready(function () {
                                             if (hasNumber(this))
                                                 if (k < len - 1)
                                                     $(tricksInputs[k + 1]).focus();
-                                                else if (k == len - 1) {
+                                                else if (k === len - 1) {
                                                     bidRow.remove();
                                                     tricksRow.remove();
                                                     playersRow.remove();
@@ -148,7 +148,7 @@ $(document).ready(function () {
     function maxIndices(elements) {
         var indices = [0], max = elements[0];
         for (var i = 1; i < elements.length; i++)
-            if (max == elements[i])
+            if (max === elements[i])
                 indices.push(i);
             else if (max < elements[i]) {
                 indices = [i];
@@ -159,7 +159,7 @@ $(document).ready(function () {
 
     function dealerIndex(dealer) {
         for (var i = 0; i < len; i++)
-            if (dealer == players[i])
+            if (dealer === players[i])
                 return i;
     }
 
@@ -198,7 +198,7 @@ $(document).ready(function () {
         for (var i = 0; i < len; i++) {
             var bid = bids[i], trick = tricks[i];
             var diff = Math.abs(bid - trick);
-            if (diff == 0)
+            if (diff === 0)
                 score[i] += 10 + bid * 2;
             else
                 score[i] -= 2 * diff;
